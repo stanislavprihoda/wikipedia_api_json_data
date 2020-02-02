@@ -1,0 +1,90 @@
+version: '3'
+services:
+  esn01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    ports:
+    - 9200:9200
+    volumes:
+    - esdata01:/usr/share/elasticsearch/data
+    environment:
+    - cluster.name=stanislavs-docker-cluster
+    - node.name=esn01
+    - cluster.initial_master_nodes=esn01,ens02,esn03
+    - discovery.seed_hosts=esn02,esn03
+    - bootstrap.memory_lock=true
+    - node.attr.type=hot
+    - xpack.monitoring.enabled=true
+    - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock: 
+        soft: -1
+        hard: -1
+  esn02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    ports:
+    - 9202:9200
+    volumes:
+    - esdata02:/usr/share/elasticsearch/data
+    environment:
+    - cluster.name=stanislavs-docker-cluster
+    - node.name=esn02
+    - cluster.initial_master_nodes=esn01,ens02,esn03
+    - discovery.seed_hosts=esn01,esn03
+    - bootstrap.memory_lock=true
+    - node.attr.type=hot
+    - xpack.monitoring.enabled=true
+    - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock: 
+        soft: -1
+        hard: -1
+  esn03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    ports:
+    - 9203:9200
+    volumes:
+    - esdata03:/usr/share/elasticsearch/data
+    environment:
+    - cluster.name=stanislavs-docker-cluster
+    - node.name=esn03
+    - cluster.initial_master_nodes=esn01,ens02,esn03
+    - discovery.seed_hosts=esn01,esn02
+    - bootstrap.memory_lock=true
+    - node.attr.type=warm
+    - xpack.monitoring.enabled=true
+    - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock: 
+        soft: -1
+        hard: -1
+  esn04:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    ports:
+    - 9204:9200
+    volumes:
+    - esdata04:/usr/share/elasticsearch/data
+    environment:
+    - cluster.name=stanislavs-docker-cluster
+    - node.name=esn04
+    - discovery.seed_hosts=esn01,esn02,esn03
+    - bootstrap.memory_lock=true
+    - node.attr.type=warm
+    - xpack.monitoring.enabled=true
+    - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock: 
+        soft: -1
+        hard: -1
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.5.2
+    ports:
+    - 5601:5601
+    environment:
+    - xpack.monitoring.enabled=true
+    links:
+    - esn01:elasticsearch
+volumes:
+  esdata01: {}
+  esdata02: {}
+  esdata03: {}
+  esdata04: {}
